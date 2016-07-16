@@ -159,10 +159,8 @@ namespace Klocman.Binding.Settings
             Expression<Func<TSettingClass, TProperty>> selectedSetting, object tag)
         {
             var property = ReflectionTools.GetPropertyInfo(targetProperty);
-            var settingName = ReflectionTools.GetPropertyName(selectedSetting);
-            _eventEntries.Add(new KeyValuePair<string, ISettingChangedHandlerEntry>(settingName,
-                new SettingChangedHandlerEntry<TProperty>(
-                    (sender, args) => property.SetValue(targetClass, args.NewValue, null), tag)));
+
+            Subscribe((sender, args) => property.SetValue(targetClass, args.NewValue, null), selectedSetting, tag);
         }
 
         /// <summary>
