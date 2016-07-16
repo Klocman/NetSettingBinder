@@ -45,7 +45,8 @@
     <Compile Include="SettingChangedHandlerEntry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Licence.txt">
+    <Content Include="..\Licence.txt">
+      <Link>Licence.txt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
