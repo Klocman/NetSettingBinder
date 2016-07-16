@@ -44,11 +44,11 @@ namespace Klocman.Binding.Settings
         /// <param name="targetProperty">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="eventHandlerName">Name of the event handler</param>
         /// <param name="targetClass">Instance of the target class</param>
-        /// <param name="targetSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
+        /// <param name="selectedSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="tag">Tag used for grouping</param>
         public void BindProperty<TProperty, TPropertyClass>(TPropertyClass targetClass,
             Expression<Func<TPropertyClass, TProperty>> targetProperty,
-            string eventHandlerName, Expression<Func<TSettingClass, TProperty>> targetSetting, object tag)
+            string eventHandlerName, Expression<Func<TSettingClass, TProperty>> selectedSetting, object tag)
             where TPropertyClass : class
         {
             var propertyInfo = ReflectionTools.GetPropertyInfo(targetProperty);
@@ -62,7 +62,7 @@ namespace Klocman.Binding.Settings
             Bind(x => propertyInfo.SetValue(targetClass, x, null),
                 () => (TProperty) propertyInfo.GetValue(targetClass, null),
                 handler => eventInfo.AddEventHandler(targetClass, handler),
-                handler => eventInfo.RemoveEventHandler(targetClass, handler), targetSetting, tag);
+                handler => eventInfo.RemoveEventHandler(targetClass, handler), selectedSetting, tag);
         }
 
         /// <summary>
@@ -73,11 +73,11 @@ namespace Klocman.Binding.Settings
         /// <typeparam name="TPropertyClass">Type of the class containing specified property</typeparam>
         /// <param name="targetProperty">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="targetClass">Instance of the target class implementing INotifyPropertyChanged</param>
-        /// <param name="targetSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
+        /// <param name="selectedSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="tag">Tag used for grouping</param>
         public void BindProperty<TProperty, TPropertyClass>(TPropertyClass targetClass,
             Expression<Func<TPropertyClass, TProperty>> targetProperty,
-            Expression<Func<TSettingClass, TProperty>> targetSetting, object tag)
+            Expression<Func<TSettingClass, TProperty>> selectedSetting, object tag)
             where TPropertyClass : class, INotifyPropertyChanged
         {
             var propertyInfo = ReflectionTools.GetPropertyInfo(targetProperty);
@@ -98,7 +98,47 @@ namespace Klocman.Binding.Settings
                     handlerCallback = handler;
                     eventInterface.PropertyChanged += propertyChangedHandler;
                 },
-                handler => { eventInterface.PropertyChanged -= propertyChangedHandler; }, targetSetting, tag);
+                handler =>
+                {
+                    eventInterface.PropertyChanged -= propertyChangedHandler;
+                }, 
+                selectedSetting, 
+                tag);
+        }
+
+        /// <summary>
+        ///     Manually bind to a setting
+        /// </summary>
+        /// <typeparam name="T">Bound value type</typeparam>
+        /// <param name="setter">Delegate used to set value of the external property</param>
+        /// <param name="getter">Delegate used to get value of the external property</param>
+        /// <param name="registerEvent">Delegate used to register to the notifying event of the external property</param>
+        /// <param name="unregisterEvent">Delegate used to unregister from the notifying event of the external property</param>
+        /// <param name="targetSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
+        /// <param name="tag">Tag used for grouping</param>
+        public void Bind<T>(Action<T> setter, Func<T> getter,
+            Action<EventHandler> registerEvent, Action<EventHandler> unregisterEvent,
+            Expression<Func<TSettingClass, T>> targetSetting, object tag)
+        {
+            var property = ReflectionTools.GetPropertyInfo(targetSetting);
+
+            EventHandler checkedChanged = (x, y) => { property.SetValue(Settings, getter(), null); };
+
+            registerEvent(checkedChanged);
+
+            SettingChangedEventHandler<T> settingChanged = (x, y) =>
+            {
+                var remoteValue = getter();
+                if ((remoteValue != null && !remoteValue.Equals(y.NewValue))
+                    || (remoteValue == null && y.NewValue != null))
+                {
+                    unregisterEvent(checkedChanged);
+                    setter(y.NewValue);
+                    registerEvent(checkedChanged);
+                }
+            };
+
+            Subscribe(settingChanged, targetSetting, tag);
         }
 
         /// <summary>
@@ -130,12 +170,12 @@ namespace Klocman.Binding.Settings
         /// </summary>
         /// <typeparam name="TProperty">Type of the property</typeparam>
         /// <param name="handler">Handler to register</param>
-        /// <param name="targetProperty">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
+        /// <param name="selectedSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="tag">Tag used for grouping</param>
         public void Subscribe<TProperty>(SettingChangedEventHandler<TProperty> handler,
-            Expression<Func<TSettingClass, TProperty>> targetProperty, object tag)
+            Expression<Func<TSettingClass, TProperty>> selectedSetting, object tag)
         {
-            var name = ReflectionTools.GetPropertyName(targetProperty);
+            var name = ReflectionTools.GetPropertyName(selectedSetting);
             _eventEntries.Add(new KeyValuePair<string, ISettingChangedHandlerEntry>(name,
                 new SettingChangedHandlerEntry<TProperty>(handler, tag)));
         }
@@ -177,41 +217,6 @@ namespace Klocman.Binding.Settings
                     entry.Value.SendEvent(Settings[entry.Key]);
                 }
             }
-        }
-
-        /// <summary>
-        ///     Manually bind to a setting
-        /// </summary>
-        /// <typeparam name="T">Bound value type</typeparam>
-        /// <param name="setter">Delegate used to set value of the external property</param>
-        /// <param name="getter">Delegate used to get value of the external property</param>
-        /// <param name="registerEvent">Delegate used to register to the notifying event of the external property</param>
-        /// <param name="unregisterEvent">Delegate used to unregister from the notifying event of the external property</param>
-        /// <param name="targetSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
-        /// <param name="tag">Tag used for grouping</param>
-        public void Bind<T>(Action<T> setter, Func<T> getter,
-            Action<EventHandler> registerEvent, Action<EventHandler> unregisterEvent,
-            Expression<Func<TSettingClass, T>> targetSetting, object tag)
-        {
-            var property = ReflectionTools.GetPropertyInfo(targetSetting);
-
-            EventHandler checkedChanged = (x, y) => { property.SetValue(Settings, getter(), null); };
-
-            registerEvent(checkedChanged);
-
-            SettingChangedEventHandler<T> settingChanged = (x, y) =>
-            {
-                var remoteValue = getter();
-                if ((remoteValue != null && !remoteValue.Equals(y.NewValue))
-                    || (remoteValue == null && y.NewValue != null))
-                {
-                    unregisterEvent(checkedChanged);
-                    setter(y.NewValue);
-                    registerEvent(checkedChanged);
-                }
-            };
-
-            Subscribe(settingChanged, targetSetting, tag);
         }
 
         /// <summary>
