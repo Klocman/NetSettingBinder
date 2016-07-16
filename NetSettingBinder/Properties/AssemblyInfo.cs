@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("NetSettingBinder")]
-[assembly: AssemblyDescription("Set of tools for binding .Net Settings to Forms controls or any other classes")]
+[assembly: AssemblyDescription("A tool for binding controls, variables and typed event handlers to custom Settings classes.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Marcin Szeniak")]
 [assembly: AssemblyProduct("NetSettingBinder")]
