@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="ISettingChangedHandlerEntry.cs" />
     <Compile Include="ReflectionTools.cs" />
+    <Compile Include="SettingBinder.Forms.cs" />
     <Compile Include="SettingChangedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingBinder.cs" />
