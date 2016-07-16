@@ -189,7 +189,8 @@ namespace Klocman.Binding.Settings
 
         /// <summary>
         ///     Send property changed events to all registered handlers
-        ///     Warning: Do not rely on this firing xyzChanged events as controls will fire them if their value doesn't actually
+        ///     Warning: Do not rely on this firing xyzChanged events as controls and such 
+        ///     might not fire them if the value doesn't actually change.
         ///     change.
         /// </summary>
         public void SendUpdates()
@@ -202,8 +203,8 @@ namespace Klocman.Binding.Settings
 
         /// <summary>
         ///     Send property changed events to the whole group.
-        ///     Warning: Do not rely on this firing xyzChanged events as controls will fire them if their value doesn't actually
-        ///     change.
+        ///     Warning: Do not rely on this firing xyzChanged events as controls and such 
+        ///     might not fire them if the value doesn't actually change.
         /// </summary>
         /// <param name="groupTag">Tag used by group to update</param>
         public void SendUpdates(object groupTag)
