@@ -7,7 +7,7 @@
     <ProjectGuid>{C28A3493-8FCA-4571-8F9E-27B8420C0720}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NetSettingBinder</RootNamespace>
+    <RootNamespace>Klocman.Binding.Settings</RootNamespace>
     <AssemblyName>NetSettingBinder</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
