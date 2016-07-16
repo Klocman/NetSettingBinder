@@ -184,7 +184,7 @@ namespace Klocman.Binding.Settings
         /// <param name="groupTag">Tag used by group to remove</param>
         public void RemoveHandlers(object groupTag)
         {
-            _eventEntries.RemoveAll(pair => pair.Value.Tag.Equals(groupTag));
+            _eventEntries.RemoveAll(pair => Equals(pair.Value.Tag, groupTag));
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Klocman.Binding.Settings
         {
             foreach (var entry in _eventEntries)
             {
-                if (entry.Value.Tag != null && entry.Value.Tag.Equals(groupTag))
+                if (Equals(entry.Value.Tag, groupTag))
                 {
                     entry.Value.SendEvent(Settings[entry.Key]);
                 }
