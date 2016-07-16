@@ -26,7 +26,7 @@ namespace Klocman.Binding.Settings
         /// </summary>
         void ISettingChangedHandlerEntry.SendEvent(object value)
         {
-            Handler(this, new SettingChangedEventArgs<T>((T)value));
+            Handler(this, new SettingChangedEventArgs<T>((T) value));
         }
     }
 }

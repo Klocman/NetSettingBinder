@@ -32,11 +32,15 @@ namespace Klocman.Binding.Settings
 
             var memberSelectorExpression = memberLamda.Body as MemberExpression;
             if (memberSelectorExpression == null)
-                throw new ArgumentException("You must pass a lambda of the form: 'x => x.Property' or 'x => class.Property'", nameof(memberLamda));
+                throw new ArgumentException(
+                    "You must pass a lambda of the form: 'x => x.Property' or 'x => class.Property'",
+                    nameof(memberLamda));
 
             var property = memberSelectorExpression.Member as PropertyInfo;
             if (property == null)
-                throw new ArgumentException("You must pass a lambda of the form: 'x => x.Property' or 'x => class.Property'", nameof(memberLamda));
+                throw new ArgumentException(
+                    "You must pass a lambda of the form: 'x => x.Property' or 'x => class.Property'",
+                    nameof(memberLamda));
 
             return property;
         }

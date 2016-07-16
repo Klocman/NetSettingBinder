@@ -3,7 +3,7 @@
 namespace Klocman.Binding.Settings
 {
     /// <summary>
-    /// EventArgs used by the SettingBinder to announce setting changes
+    ///     EventArgs used by the SettingBinder to announce setting changes
     /// </summary>
     /// <typeparam name="T">Type of the setting that was changed</typeparam>
     public class SettingChangedEventArgs<T> : EventArgs
@@ -16,7 +16,7 @@ namespace Klocman.Binding.Settings
         }
 
         /// <summary>
-        /// New value of the changed setting
+        ///     New value of the changed setting
         /// </summary>
         public T NewValue { get; }
     }

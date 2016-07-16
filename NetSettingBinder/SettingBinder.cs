@@ -120,8 +120,8 @@ namespace Klocman.Binding.Settings
         }
 
         /// <summary>
-        /// Bind specified property inside of targetClass to the specified setting. 
-        /// Use event handler specified by eventHandlerName to get notifications of property changes.
+        ///     Bind specified property inside of targetClass to the specified setting.
+        ///     Use event handler specified by eventHandlerName to get notifications of property changes.
         /// </summary>
         /// <typeparam name="TProperty">Type of the property</typeparam>
         /// <typeparam name="TPropertyClass">Type of the class containing specified property</typeparam>
@@ -130,26 +130,28 @@ namespace Klocman.Binding.Settings
         /// <param name="targetClass">Instance of the target class</param>
         /// <param name="targetSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="tag">Tag used for grouping</param>
-        public void BindProperty<TProperty, TPropertyClass>(TPropertyClass targetClass, Expression<Func<TPropertyClass, TProperty>> targetProperty,
+        public void BindProperty<TProperty, TPropertyClass>(TPropertyClass targetClass,
+            Expression<Func<TPropertyClass, TProperty>> targetProperty,
             string eventHandlerName, Expression<Func<TSettingClass, TProperty>> targetSetting, object tag)
             where TPropertyClass : class
         {
             var propertyInfo = ReflectionTools.GetPropertyInfo(targetProperty);
-            var eventInfo = typeof(TPropertyClass).GetEvent(eventHandlerName,
+            var eventInfo = typeof (TPropertyClass).GetEvent(eventHandlerName,
                 BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
             if (eventInfo == null)
-                throw new ArgumentException(@"Event name is invalid or the event is not public", nameof(eventHandlerName));
+                throw new ArgumentException(@"Event name is invalid or the event is not public",
+                    nameof(eventHandlerName));
 
             Bind(x => propertyInfo.SetValue(targetClass, x, null),
-                () => (TProperty)propertyInfo.GetValue(targetClass, null),
+                () => (TProperty) propertyInfo.GetValue(targetClass, null),
                 handler => eventInfo.AddEventHandler(targetClass, handler),
                 handler => eventInfo.RemoveEventHandler(targetClass, handler), targetSetting, tag);
         }
 
         /// <summary>
-        /// Bind specified property inside of targetClass to the specified setting. 
-        /// Use INotifyPropertyChanged.PropertyChanged event to get notifications of property changes.
+        ///     Bind specified property inside of targetClass to the specified setting.
+        ///     Use INotifyPropertyChanged.PropertyChanged event to get notifications of property changes.
         /// </summary>
         /// <typeparam name="TProperty">Type of the property</typeparam>
         /// <typeparam name="TPropertyClass">Type of the class containing specified property</typeparam>
@@ -157,13 +159,14 @@ namespace Klocman.Binding.Settings
         /// <param name="targetClass">Instance of the target class implementing INotifyPropertyChanged</param>
         /// <param name="targetSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="tag">Tag used for grouping</param>
-        public void BindProperty<TProperty, TPropertyClass>(TPropertyClass targetClass, Expression<Func<TPropertyClass, TProperty>> targetProperty,
+        public void BindProperty<TProperty, TPropertyClass>(TPropertyClass targetClass,
+            Expression<Func<TPropertyClass, TProperty>> targetProperty,
             Expression<Func<TSettingClass, TProperty>> targetSetting, object tag)
             where TPropertyClass : class, INotifyPropertyChanged
         {
             var propertyInfo = ReflectionTools.GetPropertyInfo(targetProperty);
             var propertyName = propertyInfo.Name;
-            var eventInterface = (INotifyPropertyChanged)targetClass;
+            var eventInterface = (INotifyPropertyChanged) targetClass;
 
             EventHandler handlerCallback = null;
             PropertyChangedEventHandler propertyChangedHandler = (sender, args) =>
@@ -173,24 +176,25 @@ namespace Klocman.Binding.Settings
             };
 
             Bind(x => propertyInfo.SetValue(targetClass, x, null),
-                () => (TProperty)propertyInfo.GetValue(targetClass, null),
+                () => (TProperty) propertyInfo.GetValue(targetClass, null),
                 handler =>
                 {
                     handlerCallback = handler;
                     eventInterface.PropertyChanged += propertyChangedHandler;
                 },
-                handler =>
-                {
-                    eventInterface.PropertyChanged -= propertyChangedHandler;
-                }, targetSetting, tag);
+                handler => { eventInterface.PropertyChanged -= propertyChangedHandler; }, targetSetting, tag);
         }
 
         /// <summary>
-        ///     Create event handler that will automatically update target property in target class when the specified setting changes.
+        ///     Create event handler that will automatically update target property in target class when the specified setting
+        ///     changes.
         /// </summary>
         /// <typeparam name="TProperty">Type of the property</typeparam>
         /// <typeparam name="TPropertyClass">Type of the class containing specified property</typeparam>
-        /// <param name="targetProperty">The property to be updated when setting changes. Lambda of style 'x => x.Property' or 'x => class.Property'</param>
+        /// <param name="targetProperty">
+        ///     The property to be updated when setting changes. Lambda of style 'x => x.Property' or 'x
+        ///     => class.Property'
+        /// </param>
         /// <param name="targetClass">Instance of the class with the property to be updated</param>
         /// <param name="selectedSetting">Lambda of style 'x => x.Property' or 'x => class.Property'</param>
         /// <param name="tag">Tag used for grouping</param>
@@ -201,7 +205,8 @@ namespace Klocman.Binding.Settings
             var property = ReflectionTools.GetPropertyInfo(targetProperty);
             var settingName = ReflectionTools.GetPropertyName(selectedSetting);
             _eventEntries.Add(new KeyValuePair<string, ISettingChangedHandlerEntry>(settingName,
-                new SettingChangedHandlerEntry<TProperty>((sender, args) => property.SetValue(targetClass, args.NewValue, null), tag)));
+                new SettingChangedHandlerEntry<TProperty>(
+                    (sender, args) => property.SetValue(targetClass, args.NewValue, null), tag)));
         }
 
         /// <summary>
