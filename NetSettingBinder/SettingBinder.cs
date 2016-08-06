@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -14,7 +15,7 @@ namespace Klocman.Binding.Settings
     /// <typeparam name="TSettingClass">Type of your custom Settings class, it must inherit from ApplicationSettingsBase</typeparam>
     public partial class SettingBinder<TSettingClass> where TSettingClass : ApplicationSettingsBase
     {
-        private readonly List<KeyValuePair<string, ISettingChangedHandlerEntry>> _eventEntries;
+        private readonly LockedList<KeyValuePair<string, ISettingChangedHandlerEntry>> _eventEntries;
 
         /// <summary>
         ///     Create a new SettingBinder and hook into the specified class
@@ -25,7 +26,7 @@ namespace Klocman.Binding.Settings
             if (settingSet == null)
                 throw new ArgumentNullException(nameof(settingSet));
 
-            _eventEntries = new List<KeyValuePair<string, ISettingChangedHandlerEntry>>();
+            _eventEntries = new LockedList<KeyValuePair<string, ISettingChangedHandlerEntry>>();
             Settings = settingSet;
             Settings.PropertyChanged += PropertyChangedCallback;
         }

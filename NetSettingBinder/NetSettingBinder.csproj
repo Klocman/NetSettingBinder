@@ -35,6 +35,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LockedList.cs" />
     <Compile Include="ISettingChangedHandlerEntry.cs" />
     <Compile Include="ReflectionTools.cs" />
     <Compile Include="SettingBinder.Forms.cs" />
